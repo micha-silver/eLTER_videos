@@ -1,2 +1,2 @@
 # eLTER Videos
-Rmd and R scripts for preparation of videos to train in using the `ReLTER` package 
+Rmd, slides, and R scripts for preparation of videos to train in using the `ReLTER` package 
