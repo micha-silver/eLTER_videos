@@ -1,2 +1,2 @@
-# ReLTER_demo
-Demonstration of ReLTER package to acquire EO data
+# eLTER Videos
+Rmd and R scripts for preparation of videos to train in using the `ReLTER` package 
