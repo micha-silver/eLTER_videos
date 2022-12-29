@@ -1,5 +1,8 @@
 ## ----relter-loading, message=FALSE, warning=FALSE------------------------------------
-# Convenient way to load list of packages
+if (!require("ReLTER", quietly = TRUE))
+  remotes::install_github("ropensci/ReLTER")
+
+# Convenient way to load list of additional packages
 pkg_list <- c("sf", "terra", "ReLTER", "tmap")
 lapply(pkg_list,require, character.only = TRUE)
 tmap_options(check.and.fix = TRUE)
@@ -16,7 +19,7 @@ citation("ReLTER")
 
 
 ## ----relter-functions----------------------------------------------------------------
-ls("package:ReLTER")
+head(ls("package:ReLTER"), 20)
 
 
 ## ----relter-donana-------------------------------------------------------------------
@@ -32,6 +35,18 @@ tm_basemap("OpenStreetMap.Mapnik") +
   tm_fill(col = "blue", alpha = 0.3)
 
 
+## ----relter-species-donana-----------------------------------------------------------
+species_occur <-  get_site_speciesOccurrences(donana_id,
+                                              list_DS = "gbif", limit=10)
+
+# Variables available from GBIF:
+colnames(species_occur$gbif)
+
+
+## ----relter-species-variables--------------------------------------------------------
+dplyr::select(species_occur$gbif, name, eventDate)
+
+
 ## ----relter-kinord-info--------------------------------------------------------------
 loch_kinord <- get_ilter_generalinfo(country_name = "United K",
                               site_name = "Loch Kinord")
@@ -44,30 +59,23 @@ print(paste("Site manager:",
             loch_kinord_details$generalInfo.siteManager[[1]]['email']))
 
 
-## ----relter-kinord-metadata----------------------------------------------------------
-# Metadata contact:
-(loch_kinord_details$generalInfo.metadataProvider[[1]]['name'])
-print(paste("Average air temperature:",
-            loch_kinord_details$envCharacteristics.airTemperature.avg))
+## ----relter-kinord-envcharacteristics------------------------------------------------
+print(paste("Annual average air temperature:",
+            loch_kinord_details$envCharacteristics.airTemperature.yearlyAverage))
 print(paste("Annual precipitation:",
-            loch_kinord_details$envCharacteristics.precipitation.annual))
+            loch_kinord_details$envCharacteristics.precipitation.yearlyAverage))
 
 
 ## ----relter-kinord-geobonbiome-------------------------------------------------------
-print(paste("GeoBonBiome:",
-            loch_kinord_details$envCharacteristics.geoBonBiome[[1]]))
-# Parameters:
-head(loch_kinord_details$parameter[[1]]['parameterLabel'], 12)
+print(paste("GeoBonBiome: ",
+            loch_kinord_details$envCharacteristics.geoBonBiome))
+
+loch_kinord_vegetation <- loch_kinord_details$envCharacteristics.vegetation
+cat("Vegetation: \n", stringr::str_wrap(loch_kinord_vegetation, 70))
 
 
 ## ----elter-slovakia------------------------------------------------------------------
 lter_slovakia_id = "https://deims.org/networks/3d6a8d72-9f86-4082-ad56-a361b4cdc8a0"
-
-network_research_topics <- get_network_research_topics(lter_slovakia_id)
-head(network_research_topics$researchTopicsLabel, 20)
-
-
-## ----relter-slovakia-network---------------------------------------------------------
 lter_slovakia_sites <- get_network_sites(lter_slovakia_id)
 lter_slovakia_sites$title
 
@@ -76,10 +84,7 @@ lter_slovakia_sites$title
 lter_slovakia <- produce_network_points_map(lter_slovakia_id, "SVK")
 svk <- readRDS("gadm36_SVK_0_sp.rds")  # downloaded by produce_network_points_map()
 tm_basemap("OpenStreetMap.Mapnik") + 
-  tm_shape(lter_slovakia) + 
-  tm_dots(col = "blue", size=0.04) +
-  tm_shape(svk) + 
-  tm_borders(col = "purple", lwd = 0.6) +
-  tm_grid(alpha = 0.4) +
+  lter_slovakia + 
+  tm_shape(svk) +   tm_borders(col = "blue", lwd = 1) + 
   tm_scale_bar(position = c("right", "bottom"))
 

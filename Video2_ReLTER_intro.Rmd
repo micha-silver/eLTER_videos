@@ -49,10 +49,10 @@ citation("ReLTER")
 
 ----
 
-#### Basic functions
+#### Package functions
 
 ```{r relter-functions}
-ls("package:ReLTER")
+head(ls("package:ReLTER"), 20)
 ```
 
 ----
@@ -71,11 +71,22 @@ ls("package:ReLTER")
   - European spatial data
   - MODIS products
 
+----
+
+#### Key functions:
+  - `get_ilter_generalinfo()`
+  - `get_site_info()`
+  - `get_network_sites()`
+  - `get_site_speciesOccurrences()`
+  - `get_site_ODS()`
+  - `get_site_MODIS()`
+  
+
 ## Examples
 
 Search for DEIMS ID for a particular site. The function `get_ilter_generalinfo` allows to search by country name and site name. Then `get_site_info()` obtains various metadata about a chosen site.
 
-#### For the first example, the Doñana LTSER Platform in Spain
+#### For the first example, the **Doñana LTSER Platform** in Spain
 
 ```{r relter-donana}
 donana = get_ilter_generalinfo(country_name = "Spain",
@@ -96,9 +107,28 @@ tm_basemap("OpenStreetMap.Mapnik") +
 
 ---- 
 
-#### Next example: Retrieve metadata about a site. 
+Get species occurrence data for Doñana using the `get_site_speciesOccurrences()` function. This function downloads data from one of the global biodiversity information sites.
+In this case, GBIF: https://www.gbif.org/
 
-This example retrieves metadata from Lock Kinord in Scotland.
+```{r relter-species-donana}
+species_occur <-  get_site_speciesOccurrences(donana_id,
+                                              list_DS = "gbif", limit=10)
+
+# Variables available from GBIF:
+colnames(species_occur$gbif)
+```
+
+----
+
+Display some variables from GBIF
+
+```{r relter-species-variables}
+dplyr::select(species_occur$gbif, name, eventDate)
+```
+
+----
+
+#### Next example: Metadata from **Loch Kinord** in Scotland.
 
 Note that partial matching is supported. i.e. "United K"
 
@@ -133,15 +163,14 @@ Biome, vegetation
 print(paste("GeoBonBiome: ",
             loch_kinord_details$envCharacteristics.geoBonBiome))
 
-print(paste("Vegetation: ",
-            loch_kinord_details$envCharacteristics.vegetation))
+loch_kinord_vegetation <- loch_kinord_details$envCharacteristics.vegetation
+cat("Vegetation: \n", stringr::str_wrap(loch_kinord_vegetation, 70))
 ```
 
 ----
 
-#### Next example: Query a network
+#### Next example: Query the **LTER network in Slovakia**
 
-The LTER network in Slovakia
 
 ```{r elter-slovakia}
 lter_slovakia_id = "https://deims.org/networks/3d6a8d72-9f86-4082-ad56-a361b4cdc8a0"
@@ -158,8 +187,7 @@ lter_slovakia <- produce_network_points_map(lter_slovakia_id, "SVK")
 svk <- readRDS("gadm36_SVK_0_sp.rds")  # downloaded by produce_network_points_map()
 tm_basemap("OpenStreetMap.Mapnik") + 
   lter_slovakia + 
-  tm_shape(svk) + 
-  tm_borders(col = "blue", lwd = 1) +
+  tm_shape(svk) +   tm_borders(col = "blue", lwd = 1) + 
   tm_scale_bar(position = c("right", "bottom"))
 ```
 
