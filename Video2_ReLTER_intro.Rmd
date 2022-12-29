@@ -1,11 +1,11 @@
 ---
-title: "Introducing ReLTER"
+title: "Introducing `ReLTER`"
 author: "Alessandro Oggioni, Micha Silver, Paulo Tagliolato"
-date: "13/04/2022"
+date: "3/01/2023"
 output:
   ioslides_presentation:
     smaller: true
-    logo: eLTER_logo_small.png
+    logo: figures/eLTER_logo.png
     css: styles.css
 ---
 
@@ -15,8 +15,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## What is ReLTER
 
+#### As a reminder
+  
+  - Clone the github repository: https://github.com/micha-silver/ReLTER_demo
+  - Review the first video: https://youtu.be/Y037HJH34g4
+  - Install `ReLTER` from github:
+    
 ```{r relter-loading, message=FALSE, warning=FALSE}
-# Convenient way to load list of packages
+if (!require("ReLTER", quietly = TRUE))
+  remotes::install_github("ropensci/ReLTER")
+
+# Convenient way to load list of additional packages
 pkg_list <- c("sf", "terra", "ReLTER", "tmap")
 lapply(pkg_list,require, character.only = TRUE)
 tmap_options(check.and.fix = TRUE)
@@ -31,8 +40,6 @@ tmap_mode("view")
 library(ReLTER)
 maintainer("ReLTER")
 ```
-
-----
 
 #### How to cite
 
@@ -56,7 +63,14 @@ ls("package:ReLTER")
   - network functions
   - metadata functions
   - taxonomy functions
- 
+
+#### Access to external data
+
+  - Species occurance
+  - Species taxonomy
+  - European spatial data
+  - MODIS products
+
 ## Examples
 
 Search for DEIMS ID for a particular site. The function `get_ilter_generalinfo` allows to search by country name and site name. Then `get_site_info()` obtains various metadata about a chosen site.
@@ -79,11 +93,14 @@ tm_basemap("OpenStreetMap.Mapnik") +
   tm_shape(donana_polygon) +
   tm_fill(col = "blue", alpha = 0.3)
 ```
+
 ---- 
 
 #### Next example: Retrieve metadata about a site. 
 
 This example retrieves metadata from Lock Kinord in Scotland.
+
+Note that partial matching is supported. i.e. "United K"
 
 ```{r relter-kinord-info}
 loch_kinord <- get_ilter_generalinfo(country_name = "United K",
@@ -99,22 +116,25 @@ print(paste("Site manager:",
 
 ----
 
-```{r relter-kinord-metadata}
-# Metadata contact:
-(loch_kinord_details$generalInfo.metadataProvider[[1]]['name'])
-print(paste("Average air temperature:",
-            loch_kinord_details$envCharacteristics.airTemperature.avg))
+Environment Characteristics
+
+```{r relter-kinord-envcharacteristics}
+print(paste("Annual average air temperature:",
+            loch_kinord_details$envCharacteristics.airTemperature.yearlyAverage))
 print(paste("Annual precipitation:",
-            loch_kinord_details$envCharacteristics.precipitation.annual))
+            loch_kinord_details$envCharacteristics.precipitation.yearlyAverage))
 ```
 
 ----
 
+Biome, vegetation
+
 ```{r relter-kinord-geobonbiome}
-print(paste("GeoBonBiome:",
-            loch_kinord_details$envCharacteristics.geoBonBiome[[1]]))
-# Parameters:
-head(loch_kinord_details$parameter[[1]]['parameterLabel'], 12)
+print(paste("GeoBonBiome: ",
+            loch_kinord_details$envCharacteristics.geoBonBiome))
+
+print(paste("Vegetation: ",
+            loch_kinord_details$envCharacteristics.vegetation))
 ```
 
 ----
@@ -125,14 +145,6 @@ The LTER network in Slovakia
 
 ```{r elter-slovakia}
 lter_slovakia_id = "https://deims.org/networks/3d6a8d72-9f86-4082-ad56-a361b4cdc8a0"
-
-network_research_topics <- get_network_research_topics(lter_slovakia_id)
-head(network_research_topics$researchTopicsLabel, 20)
-```
-
-----
-
-```{r relter-slovakia-network}
 lter_slovakia_sites <- get_network_sites(lter_slovakia_id)
 lter_slovakia_sites$title
 ```
@@ -145,11 +157,9 @@ lter_slovakia_sites$title
 lter_slovakia <- produce_network_points_map(lter_slovakia_id, "SVK")
 svk <- readRDS("gadm36_SVK_0_sp.rds")  # downloaded by produce_network_points_map()
 tm_basemap("OpenStreetMap.Mapnik") + 
-  tm_shape(lter_slovakia) + 
-  tm_dots(col = "blue", size=0.04) +
+  lter_slovakia + 
   tm_shape(svk) + 
-  tm_borders(col = "purple", lwd = 0.6) +
-  tm_grid(alpha = 0.4) +
+  tm_borders(col = "blue", lwd = 1) +
   tm_scale_bar(position = c("right", "bottom"))
 ```
 

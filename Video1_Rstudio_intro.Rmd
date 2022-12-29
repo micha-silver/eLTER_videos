@@ -20,14 +20,14 @@ knitr::opts_chunk$set(echo = TRUE)
 ![](./figures/ReLTER_demo.png){.cover height=300 width=400}
 
   - Slides on website: https://micha-silver.github.io/index.html
-  - Youtube videos: (*to be announced*)
+  - Youtube videos: ( https://youtu.be/Y037HJH34g4)
 
 
 ## Beginning with RStudio and git {data-background=figures/eLTER_strip+logo.png, data-background-position=center data-background-size=800px}
 
 #### Start a new package **based on a git repo**.
 
-![New Project -> Version Control](./new_project.png)
+![New Project -> Version Control](./figures/new_project.png)
 
 Encourages collaboration "out of the box".
 
