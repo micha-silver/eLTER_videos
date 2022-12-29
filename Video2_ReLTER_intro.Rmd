@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r relter-setup, include=FALSE, purl=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
 ## What is ReLTER
@@ -24,7 +24,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r relter-loading, message=FALSE, warning=FALSE}
 if (!require("ReLTER", quietly = TRUE))
   remotes::install_github("ropensci/ReLTER")
-
 # Convenient way to load list of additional packages
 pkg_list <- c("sf", "terra", "ReLTER", "tmap")
 lapply(pkg_list,require, character.only = TRUE)
@@ -52,7 +51,7 @@ citation("ReLTER")
 #### Package functions
 
 ```{r relter-functions}
-head(ls("package:ReLTER"), 20)
+head(ls("package:ReLTER"), 30)
 ```
 
 ----
@@ -66,7 +65,7 @@ head(ls("package:ReLTER"), 20)
 
 #### Access to external data
 
-  - Species occurance
+  - Species occurrence
   - Species taxonomy
   - European spatial data
   - MODIS products
@@ -108,13 +107,12 @@ tm_basemap("OpenStreetMap.Mapnik") +
 ---- 
 
 Get species occurrence data for Doñana using the `get_site_speciesOccurrences()` function. This function downloads data from one of the global biodiversity information sites.
+
 In this case, GBIF: https://www.gbif.org/
 
 ```{r relter-species-donana}
 species_occur <-  get_site_speciesOccurrences(donana_id,
-                                              list_DS = "gbif", limit=10)
-
-# Variables available from GBIF:
+                                              list_DS = "gbif", limit=12)
 colnames(species_occur$gbif)
 ```
 
@@ -130,7 +128,7 @@ dplyr::select(species_occur$gbif, name, eventDate)
 
 #### Next example: Metadata from **Loch Kinord** in Scotland.
 
-Note that partial matching is supported. i.e. "United K"
+Note that partial matching is supported by `get_ilter_generalinfo()`. i.e. "United K"
 
 ```{r relter-kinord-info}
 loch_kinord <- get_ilter_generalinfo(country_name = "United K",
@@ -172,7 +170,7 @@ cat("Vegetation: \n", stringr::str_wrap(loch_kinord_vegetation, 70))
 #### Next example: Query the **LTER network in Slovakia**
 
 
-```{r elter-slovakia}
+```{r elter-slovakia, message=FALSE, warning=FALSE}
 lter_slovakia_id = "https://deims.org/networks/3d6a8d72-9f86-4082-ad56-a361b4cdc8a0"
 lter_slovakia_sites <- get_network_sites(lter_slovakia_id)
 lter_slovakia_sites$title
@@ -182,7 +180,7 @@ lter_slovakia_sites$title
 
 #### Show map of sites in the network
 
-```{r relter-slovakia-map}
+```{r relter-slovakia-map, message=FALSE, warning=FALSE}
 lter_slovakia <- produce_network_points_map(lter_slovakia_id, "SVK")
 svk <- readRDS("gadm36_SVK_0_sp.rds")  # downloaded by produce_network_points_map()
 tm_basemap("OpenStreetMap.Mapnik") + 
